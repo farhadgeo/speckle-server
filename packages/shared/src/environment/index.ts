@@ -10,17 +10,22 @@ function parseFeatureFlags() {
       schema: z.boolean(),
       defaults: { production: false, _: true }
     },
+    // Enables ✨ something ✨ in automate with nodes and wires.
+    FF_VISUAL_AUTOMATE_MODULE_ENABLED: {
+      schema: z.boolean(),
+      defaults: { production: false, _: false }
+    },
     // Enables the gendo ai integration
     FF_GENDOAI_MODULE_ENABLED: {
       schema: z.boolean(),
       defaults: { production: false, _: true }
     },
-    // Disables writing to the closure table in the create objects batched services (re object upload routes)
     // Enables the workspaces module
     FF_WORKSPACES_MODULE_ENABLED: {
       schema: z.boolean(),
       defaults: { production: false, _: true }
     },
+    // Disables writing to the closure table in the create objects batched services (re object upload routes)
     FF_NO_CLOSURE_WRITES: {
       schema: z.boolean(),
       defaults: { production: false, _: false }
