@@ -6,8 +6,14 @@ export const useIsAutomateModuleEnabled = () => {
   const {
     public: { FF_AUTOMATE_MODULE_ENABLED }
   } = useRuntimeConfig()
-
   return ref(FF_AUTOMATE_MODULE_ENABLED)
+}
+
+export const useIsVisualAutomateModuleEnabled = () => {
+  const {
+    public: { FF_VISUAL_AUTOMATE_MODULE_ENABLED }
+  } = useRuntimeConfig()
+  return ref(FF_VISUAL_AUTOMATE_MODULE_ENABLED)
 }
 
 export const useIsGendoModuleEnabled = () => {

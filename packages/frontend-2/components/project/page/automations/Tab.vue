@@ -55,9 +55,11 @@ import type { CreateAutomationSelectableFunction } from '~/lib/automate/helpers/
 import { usePaginatedQuery } from '~/lib/common/composables/graphql'
 
 const route = useRoute()
+const router = useRouter()
 const projectId = computed(() => route.params.id as string)
 const search = ref('')
 const isAutomateEnabled = useIsAutomateModuleEnabled()
+const isVisualAutomateEnabled = useIsVisualAutomateModuleEnabled()
 const pageFetchPolicy = usePageQueryStandardFetchPolicy()
 
 // Base tab query (no pagination)
@@ -121,7 +123,11 @@ const allowNewCreation = computed(() => {
 })
 
 const onNewAutomation = (fn?: CreateAutomationSelectableFunction) => {
-  newAutomationTargetFn.value = fn
-  showNewAutomationDialog.value = true
+  if (isVisualAutomateEnabled.value) {
+    router.push(`${route.path}/new`)
+  } else {
+    newAutomationTargetFn.value = fn
+    showNewAutomationDialog.value = true
+  }
 }
 </script>

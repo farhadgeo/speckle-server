@@ -1,0 +1,3 @@
+<template>
+  <AutomateAutomationVisualEditor />
+</template>

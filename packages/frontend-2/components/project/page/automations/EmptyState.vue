@@ -85,6 +85,7 @@ defineEmits<{
 const props = defineProps<{
   functions?: ProjectPageAutomationsEmptyState_QueryFragment
   isAutomateEnabled: boolean
+  isVisualAutomateEnabled: boolean
   disabledCreateBecauseOf?: string
 }>()
 
