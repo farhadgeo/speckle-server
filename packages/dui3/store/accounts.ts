@@ -156,6 +156,13 @@ export const useAccountStore = defineStore('accountStore', () => {
     return !!accounts.value.find((acc) => acc.accountInfo.serverInfo.url === serverUrl)
   }
 
+  const accountByServerUrl = (serverUrl: string) => {
+    const accountMatchWithServerUrl = accounts.value.find(
+      (acc) => acc.accountInfo.serverInfo.url === serverUrl
+    )
+    if (accountMatchWithServerUrl) return accountMatchWithServerUrl
+  }
+
   const accountWithFallback = (accountId: string, serverUrl: string) => {
     const accountMatchWithId = accounts.value.find(
       (acc) => acc.accountInfo.id === accountId
@@ -189,6 +196,7 @@ export const useAccountStore = defineStore('accountStore', () => {
     isAccountExistsByServer,
     refreshAccounts,
     accountWithFallback,
+    accountByServerUrl,
     provideClients
   }
 })

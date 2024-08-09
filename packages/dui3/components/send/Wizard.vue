@@ -15,6 +15,7 @@
         <div v-if="step === 2" class="h5 font-bold">Select model</div>
         <div v-if="step === 3" class="h5 font-bold">Select objects</div>
       </div>
+
       <!-- Step progress indicator: shows selected project and model -->
       <div
         v-if="selectedProject"
@@ -45,7 +46,11 @@
 
     <!-- Project selector wizard -->
     <div v-if="step === 1">
-      <WizardProjectSelector disable-no-write-access-projects @next="selectProject" />
+      <WizardProjectSelector
+        disable-no-write-access-projects
+        @next="selectProject"
+        @from-url="fromUrl"
+      />
     </div>
     <!-- Model selector wizard -->
     <div v-if="step === 2 && selectedProject && selectedAccountId" class="mt-10">
@@ -73,6 +78,7 @@ import type {
 import type { ISendFilter } from '~/lib/models/card/send'
 import { SenderModelCard } from '~/lib/models/card/send'
 import { useHostAppStore } from '~/store/hostApp'
+import type { DUIAccount } from '~/store/accounts'
 import { useAccountStore } from '~/store/accounts'
 import { ChevronRightIcon } from '@heroicons/vue/24/solid'
 import { useMixpanel } from '~/lib/core/composables/mixpanel'
@@ -119,6 +125,28 @@ watch(step, (newVal, oldVal) => {
 
 const hostAppStore = useHostAppStore()
 
+const sendFromUrl = ref<boolean>(false)
+const accountFromUrl = ref<DUIAccount>()
+const projectIdFromUrl = ref<string>()
+const modelIdFromUrl = ref<string>()
+const fromUrl = (
+  urlAccount: DUIAccount,
+  projectId: string | undefined,
+  modelId: string | undefined
+) => {
+  sendFromUrl.value = true
+  accountFromUrl.value = urlAccount
+  projectIdFromUrl.value = projectId
+  modelIdFromUrl.value = modelId
+  if (modelIdFromUrl.value) {
+    step.value = 3
+  } else if (projectIdFromUrl.value) {
+    step.value = 2
+  } else {
+    sendFromUrl.value = false
+  }
+}
+
 const addModel = async () => {
   void trackEvent('DUI3 Action', {
     name: 'Publish Wizard',
@@ -142,10 +170,18 @@ const addModel = async () => {
   }
 
   const model = new SenderModelCard()
-  model.accountId = selectedAccountId.value
-  model.projectId = selectedProject.value?.id as string
-  model.serverUrl = activeAccount.value?.accountInfo.serverInfo.url as string
-  model.modelId = selectedModel.value?.id as string
+  model.accountId = sendFromUrl.value
+    ? (accountFromUrl.value?.accountInfo.id as string)
+    : selectedAccountId.value
+  model.projectId = sendFromUrl.value
+    ? (projectIdFromUrl.value as string)
+    : (selectedProject.value?.id as string)
+  model.serverUrl = sendFromUrl.value
+    ? (accountFromUrl.value?.accountInfo.serverInfo.url as string)
+    : (activeAccount.value?.accountInfo.serverInfo.url as string)
+  model.modelId = sendFromUrl.value
+    ? (modelIdFromUrl.value as string)
+    : (selectedModel.value?.id as string)
   model.sendFilter = filter.value as ISendFilter
   model.expired = false
 

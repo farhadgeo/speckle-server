@@ -3,6 +3,16 @@
     <div class="flex items-center space-x-2"></div>
     <div class="space-y-2 relative">
       <div class="sticky -top-4 bg-foundation z-10 py-4 border-b space-y-2">
+        <FormTextInput
+          v-model="searchUrl"
+          placeholder="Url"
+          name="url"
+          autocomplete="off"
+          :show-clear="!!searchUrl"
+          full-width
+          size="sm"
+          class="text text-xs text-foreground-2"
+        />
         <div class="flex items-center space-x-2 justify-between">
           <FormTextInput
             v-model="searchText"
@@ -103,6 +113,12 @@ const { trackEvent } = useMixpanel()
 
 const emit = defineEmits<{
   (e: 'next', accountId: string, project: ProjectListProjectItemFragment): void
+  (
+    e: 'fromUrl',
+    urlAccount: DUIAccount,
+    projectId: string | undefined,
+    modelId: string | undefined
+  ): void
 }>()
 
 const props = withDefaults(
@@ -119,7 +135,60 @@ const props = withDefaults(
 const searchText = ref<string>()
 const newProjectName = ref<string>()
 
+const isUrlValid = ref<boolean>(false)
+const searchUrl = ref<string>()
 watch(searchText, () => (newProjectName.value = searchText.value))
+
+const urlAccount = ref<DUIAccount>()
+watch(searchUrl, () => handleSearchUrl(searchUrl.value))
+const handleSearchUrl = (searchUrl: string | undefined) => {
+  if (!searchUrl) {
+    newProjectName.value = ''
+    return
+  }
+
+  try {
+    const url = new URL(searchUrl)
+    const account = accountStore.accountByServerUrl(url.origin)
+    if (!account) {
+      console.warn("You don't have an account that match with an provided URL.")
+      return
+    }
+    isUrlValid.value = true
+    urlAccount.value = account
+
+    const res = extractIds(url.pathname)
+    console.log('projectId', res?.projectId)
+    console.log('modelId', res?.modelId)
+    console.log('versionId', res?.versionId)
+
+    console.log('The text is a valid URL.', url)
+
+    emit('fromUrl', urlAccount.value, res?.projectId, res?.projectId)
+  } catch (error) {
+    isUrlValid.value = false
+    console.warn('The text is not a valid URL.')
+  }
+}
+
+const extractIds = (pathname: string) => {
+  // Regex to match the pattern in the pathname
+  const regex = /\/projects\/([^/]+)\/models\/([^@]+)(?:@([^/]+))?/
+  const match = pathname.match(regex)
+
+  if (match) {
+    // Extract the projectId and modelId
+    const projectId = match[1]
+    const modelId = match[2]
+    // If versionId is not defined, default to 'latest'
+    const versionId = match[3] || 'latest'
+
+    return { projectId, modelId, versionId }
+  } else {
+    // Return null if the URL does not match the expected pattern
+    return null
+  }
+}
 
 const showNewProjectDialog = ref(false)
 const accountStore = useAccountStore()
@@ -181,7 +250,7 @@ const {
   () => ({
     limit: 5,
     filter: {
-      search: (searchText.value || '').trim() || null
+      search: (newProjectName.value || '').trim() || null
     }
   }),
   () => ({ clientId: accountId.value, debounce: 500, fetchPolicy: 'network-only' })
