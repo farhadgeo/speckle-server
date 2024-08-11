@@ -25,6 +25,13 @@
         />
       </div>
     </ViewerLayoutPanel>
+    <div class="mt-4">
+      <ViewerLayoutPanel v-for="report in reports" hide-close>
+        <div class="p-4">
+          <AutomateRunsAttachmentPreview :blob-id="report.blobId" />
+        </div>
+      </ViewerLayoutPanel>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -55,5 +62,29 @@ const props = defineProps<{
 
 const { runs } = useAutomationsStatusOrderedRuns({
   automationRuns: computed(() => props.automationRuns)
+})
+
+const reports = computed(() => {
+  console.log(runs)
+  const reportRuns = runs.value.filter((run) =>
+    (run.results.values as Record<string, any>)?.objectResults?.some(
+      (res) => res.category === 'graphic'
+    )
+  )
+
+  // const reportData = reports.value[0].map((run) => {
+  //   const { objectResults, blobIds } = (run.results.values as Record<string, any>)
+  //   return objectResults.map((res) => (
+  //     {
+  //       blobId: res.metadata.blobIds[0]
+  //     }
+  //   ))
+  // })
+
+  return reportRuns[0].results.values.objectResults.map((res) => {
+    return {
+      blobId: res.metadata.blobIds[0]
+    }
+  })
 })
 </script>

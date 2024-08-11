@@ -214,6 +214,7 @@
           @close="activeControl = 'none'"
         />
       </div>
+
       <div
         v-if="resourceItems.length !== 0 && activeControl === 'gendo' && isGendoEnabled"
       >
