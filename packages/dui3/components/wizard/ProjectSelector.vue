@@ -39,7 +39,7 @@
         </div>
         <CommonLoadingBar v-if="loading" loading />
       </div>
-      <div class="grid grid-cols-1 gap-2 relative z-0">
+      <div v-if="!isInputValidUrl" class="grid grid-cols-1 gap-2 relative z-0">
         <WizardListProjectCard
           v-for="project in projects"
           :key="project.id"
@@ -65,6 +65,7 @@
           {{ hasReachedEnd ? 'No more projects found' : 'Load older projects' }}
         </FormButton>
       </div>
+      <div v-else class="grid grid-cols-1 gap-2 relative z-0">VALID URL</div>
     </div>
     <LayoutDialog
       v-model:open="showNewProjectDialog"
@@ -135,7 +136,7 @@ const props = withDefaults(
 const searchText = ref<string>()
 const newProjectName = ref<string>()
 
-const isUrlValid = ref<boolean>(false)
+const isInputValidUrl = ref<boolean>(false)
 const searchUrl = ref<string>()
 watch(searchText, () => (newProjectName.value = searchText.value))
 
@@ -154,7 +155,7 @@ const handleSearchUrl = (searchUrl: string | undefined) => {
       console.warn("You don't have an account that match with an provided URL.")
       return
     }
-    isUrlValid.value = true
+    isInputValidUrl.value = true
     urlAccount.value = account
 
     const res = extractIds(url.pathname)
@@ -164,9 +165,9 @@ const handleSearchUrl = (searchUrl: string | undefined) => {
 
     console.log('The text is a valid URL.', url)
 
-    emit('fromUrl', urlAccount.value, res?.projectId, res?.projectId)
+    // emit('fromUrl', urlAccount.value, res?.projectId, res?.projectId)
   } catch (error) {
-    isUrlValid.value = false
+    isInputValidUrl.value = false
     console.warn('The text is not a valid URL.')
   }
 }
