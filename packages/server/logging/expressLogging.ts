@@ -6,7 +6,6 @@ import pino from 'pino'
 import type { SerializedResponse } from 'pino'
 import type { GenReqId } from 'pino-http'
 import type { IncomingMessage, ServerResponse } from 'http'
-import type { Optional } from '@speckle/shared'
 import { getRequestPath } from '@/modules/core/helpers/server'
 import { get } from 'lodash'
 
@@ -58,50 +57,32 @@ export const LoggingExpressMiddleware = HttpLogger({
   },
 
   customReceivedMessage() {
-    return '{requestPath} request received'
-  },
-
-  customReceivedObject(req, res, loggableObject: Record<string, unknown>) {
-    const requestPath = getRequestPath(req) || 'unknown'
-    const country = req.headers['cf-ipcountry'] as Optional<string>
-    return {
-      ...loggableObject,
-      requestPath,
-      country
-    }
+    return "{req['method']} {req['path']} request received"
   },
 
   customSuccessMessage() {
-    return '{requestPath} request {requestStatus} in {responseTime} ms'
+    return "{req['method']} {req['path']} request {requestStatus} in {responseTime} ms"
   },
 
   customSuccessObject(req, res, val: Record<string, unknown>) {
     const isCompleted = !req.readableAborted && res.writableEnded
     const requestStatus = isCompleted ? 'completed' : 'aborted'
-    const requestPath = getRequestPath(req) || 'unknown'
-    const country = req.headers['cf-ipcountry'] as Optional<string>
 
     return {
       ...val,
-      requestStatus,
-      requestPath,
-      country
+      requestStatus
     }
   },
 
   customErrorMessage() {
-    return '{requestPath} request {requestStatus} in {responseTime} ms'
+    return "{req['method']} {req['path']} request {requestStatus} in {responseTime} ms"
   },
   customErrorObject(req, _res, _err, val: Record<string, unknown>) {
     const requestStatus = 'failed'
-    const requestPath = getRequestPath(req) || 'unknown'
-    const country = req.headers['cf-ipcountry'] as Optional<string>
 
     return {
       ...val,
-      requestStatus,
-      requestPath,
-      country
+      requestStatus
     }
   },
 
@@ -138,6 +119,7 @@ export const LoggingExpressMiddleware = HttpLogger({
                 'set-cookie',
                 'authorization',
                 'cf-connecting-ip',
+                'cf-ipcountry',
                 'true-client-ip',
                 'x-real-ip',
                 'x-forwarded-for',
