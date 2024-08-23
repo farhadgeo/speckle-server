@@ -57,11 +57,11 @@ export const LoggingExpressMiddleware = HttpLogger({
   },
 
   customReceivedMessage() {
-    return "{req['method']} {req['path']} request received"
+    return '{req[method]} {req[path]} request received'
   },
 
   customSuccessMessage() {
-    return "{req['method']} {req['path']} request {requestStatus} in {responseTime} ms"
+    return '{req[method]} {req[path]} request {requestStatus} in {responseTime} ms'
   },
 
   customSuccessObject(req, res, val: Record<string, unknown>) {
@@ -75,7 +75,7 @@ export const LoggingExpressMiddleware = HttpLogger({
   },
 
   customErrorMessage() {
-    return "{req['method']} {req['path']} request {requestStatus} in {responseTime} ms"
+    return '{req[method]} {req[path]} request {requestStatus} in {responseTime} ms'
   },
   customErrorObject(req, _res, _err, val: Record<string, unknown>) {
     const requestStatus = 'failed'
