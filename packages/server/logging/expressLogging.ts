@@ -6,6 +6,7 @@ import pino from 'pino'
 import type { SerializedResponse } from 'pino'
 import type { GenReqId } from 'pino-http'
 import type { IncomingMessage, ServerResponse } from 'http'
+import type { Optional } from '@speckle/shared'
 import { getRequestPath } from '@/modules/core/helpers/server'
 import { get } from 'lodash'
 
@@ -43,6 +44,10 @@ export const LoggingExpressMiddleware = HttpLogger({
   autoLogging: true,
   genReqId: GenerateRequestId,
   customLogLevel: (req, res, err) => {
+    const path = getRequestPath(req)
+    const shouldBeDebug =
+      ['/metrics', '/readiness', '/liveness'].includes(path || '') ?? false
+
     if (res.statusCode >= 400 && res.statusCode < 500) {
       return 'info'
     } else if (res.statusCode >= 500 || err) {
@@ -51,9 +56,21 @@ export const LoggingExpressMiddleware = HttpLogger({
       return 'info'
     }
 
-    if (req.url === '/readiness' || req.url === '/liveness') return 'debug'
-    if (req.url === '/metrics') return 'debug'
-    return 'info'
+    return shouldBeDebug ? 'debug' : 'info'
+  },
+
+  customReceivedMessage() {
+    return '{requestPath} request received'
+  },
+
+  customReceivedObject(req, res, loggableObject: Record<string, unknown>) {
+    const requestPath = getRequestPath(req) || 'unknown'
+    const country = req.headers['cf-ipcountry'] as Optional<string>
+    return {
+      ...loggableObject,
+      requestPath,
+      country
+    }
   },
 
   customReceivedMessage() {

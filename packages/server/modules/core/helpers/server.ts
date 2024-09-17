@@ -1,13 +1,10 @@
+import type { Request } from 'express'
 import type { IncomingMessage } from 'http'
-import type express from 'express'
 import { get } from 'lodash'
 
-export const getRequestPath = (req: IncomingMessage | express.Request) => {
-  const path = (
-    get(req, 'originalUrl') ||
-    get(req, 'url') ||
-    get(req, 'path') ||
-    ''
-  ).split('?')[0] as string
+export const getRequestPath = (req: IncomingMessage | Request) => {
+  const path = ((get(req, 'originalUrl') || get(req, 'url') || '') as string).split(
+    '?'
+  )[0]
   return path?.length ? path : null
 }
