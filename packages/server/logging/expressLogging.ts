@@ -73,33 +73,37 @@ export const LoggingExpressMiddleware = HttpLogger({
     }
   },
 
-  customReceivedMessage() {
-    return '{req[method]} {req[path]} request received'
-  },
-
   customSuccessMessage() {
-    return '{req[method]} {req[path]} request {requestStatus} in {responseTime} ms'
+    return '{requestPath} request {requestStatus} in {responseTime} ms'
   },
 
   customSuccessObject(req, res, val: Record<string, unknown>) {
     const isCompleted = !req.readableAborted && res.writableEnded
     const requestStatus = isCompleted ? 'completed' : 'aborted'
+    const requestPath = getRequestPath(req) || 'unknown'
+    const country = req.headers['cf-ipcountry'] as Optional<string>
 
     return {
       ...val,
-      requestStatus
+      requestStatus,
+      requestPath,
+      country
     }
   },
 
   customErrorMessage() {
-    return '{req[method]} {req[path]} request {requestStatus} in {responseTime} ms'
+    return '{requestPath} request {requestStatus} in {responseTime} ms'
   },
   customErrorObject(req, _res, _err, val: Record<string, unknown>) {
     const requestStatus = 'failed'
+    const requestPath = getRequestPath(req) || 'unknown'
+    const country = req.headers['cf-ipcountry'] as Optional<string>
 
     return {
       ...val,
-      requestStatus
+      requestStatus,
+      requestPath,
+      country
     }
   },
 
@@ -136,7 +140,6 @@ export const LoggingExpressMiddleware = HttpLogger({
                 'set-cookie',
                 'authorization',
                 'cf-connecting-ip',
-                'cf-ipcountry',
                 'true-client-ip',
                 'x-real-ip',
                 'x-forwarded-for',
