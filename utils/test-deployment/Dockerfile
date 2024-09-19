@@ -1,4 +1,4 @@
-FROM debian:12-slim@sha256:67f3931ad8cb1967beec602d8c0506af1e37e8d73c2a0b38b181ec5d8560d395 AS build-stage
+FROM debian:12-slim@sha256:a629e796d77a7b2ff82186ed15d01a493801c020eed5ce6adaa2704356f15a1c AS build-stage
 WORKDIR /venv
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install \
@@ -9,7 +9,7 @@ RUN apt-get update && \
 COPY utils/test-deployment/requirements.txt /requirements.txt
 RUN /venv/bin/pip install --disable-pip-version-check --requirement /requirements.txt
 
-FROM gcr.io/distroless/python3-debian12:nonroot@sha256:14c62b8925d3bb30319de2f346bde203fe18103a68898284a62db9d4aa54c794 as production-stage
+FROM gcr.io/distroless/python3-debian12:nonroot@sha256:d5b5c38f06cfbee678cd273be80269ecec05c57fd3d2500dc76796d6fe665cad as production-stage
 ARG SPECKLE_SERVER
 ARG SPECKLE_VERSION
 ENV SPECKLE_SERVER=${SPECKLE_SERVER} \

@@ -1,6 +1,6 @@
 ARG NODE_ENV=production
 
-FROM node:18-bookworm-slim@sha256:408f8cbbb7b33a5bb94bdb8862795a94d2b64c2d516856824fd86c4a5594a443 as build-stage
+FROM node:18-bookworm-slim@sha256:d338af8633813756155eca65e9e245821839cefa4bfd3d10bf5f22fc07f089df as build-stage
 
 ARG NODE_ENV
 ENV NODE_ENV=${NODE_ENV}
@@ -47,7 +47,7 @@ RUN apt-get update && \
 COPY packages/fileimport-service/requirements.txt /speckle-server/
 RUN /venv/bin/pip install --disable-pip-version-check --no-cache-dir --requirement /speckle-server/requirements.txt
 
-FROM node:18-bookworm-slim@sha256:408f8cbbb7b33a5bb94bdb8862795a94d2b64c2d516856824fd86c4a5594a443 as dependency-stage
+FROM node:18-bookworm-slim@sha256:d338af8633813756155eca65e9e245821839cefa4bfd3d10bf5f22fc07f089df as dependency-stage
 # installing just the production dependencies
 # separate stage to avoid including development dependencies
 ARG NODE_ENV
@@ -65,9 +65,9 @@ COPY packages/fileimport-service/package.json ./packages/fileimport-service/
 WORKDIR /speckle-server/packages/fileimport-service
 RUN yarn workspaces focus --production
 
-FROM gcr.io/distroless/python3-debian12:nonroot@sha256:14c62b8925d3bb30319de2f346bde203fe18103a68898284a62db9d4aa54c794 as python-image
+FROM gcr.io/distroless/python3-debian12:nonroot@sha256:d5b5c38f06cfbee678cd273be80269ecec05c57fd3d2500dc76796d6fe665cad as python-image
 
-FROM gcr.io/distroless/nodejs18-debian12:nonroot@sha256:afdea027580f7afcaf1f316b2b3806690c297cb3ce6ddc5cf6a15804dc1c790f as distributable-stage
+FROM gcr.io/distroless/nodejs18-debian12:nonroot@sha256:8a8266eee5b90bac5ea7ef3637306ccbe22df85ec09cceaf3f5a7a0710cc1454 as distributable-stage
 
 ARG NODE_ENV
 ENV NODE_ENV=${NODE_ENV}
